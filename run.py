@@ -52,14 +52,13 @@ def train(parser, train_data, dev_data, output_path, batch_size=1024, n_epochs=1
     ### Please see the following docs for support:
     ###     Adam Optimizer: https://pytorch.org/docs/stable/optim.html
     ###     Cross Entropy Loss: https://pytorch.org/docs/stable/nn.html#crossentropyloss
-
-
-
+    optimizer = optim.Adam(parser.model.parameters(),lr=lr)
+    loss_func = nn.CrossEntropyLoss()
     ### END YOUR CODE
 
     for epoch in range(n_epochs):
         print("Epoch {:} out of {:}".format(epoch + 1, n_epochs))
-        dev_UAS = train_for_epoch(parser, train_data, dev_data, optimizer, loss_func, batch_size)
+        dev_UAS = train_for_epoch(parser, train_data, dev_data, optimizer, loss_func, batch_size) # 每个时期调用训练函数
         if dev_UAS > best_dev_UAS:
             best_dev_UAS = dev_UAS
             print("New best dev UAS! Saving model.")
@@ -105,10 +104,10 @@ def train_for_epoch(parser, train_data, dev_data, optimizer, loss_func, batch_si
             ###      4) Take step with the optimizer
             ### Please see the following docs for support:
             ###     Optimizer Step: https://pytorch.org/docs/stable/optim.html#optimizer-step
-
-
-
-
+            logits = parser.model(train_x)
+            loss = loss_func(logits,train_y) # 输入的logits会被转化成softmax(logits)
+            loss.backward() # 计算梯度
+            optimizer.step() # 更新参数
             ### END YOUR CODE
             prog.update(1)
             loss_meter.update(loss.item())
